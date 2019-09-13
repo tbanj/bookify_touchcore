@@ -26,7 +26,7 @@ class App extends Component {
       <div className="content">
         <ToastContainer />
         <ResultContext.Provider value={{ val: this.state.resultName, onUserInput: this.onUserInput }}>
-          {/* <NavBar /> */}
+          <NavBar />
           <Switch>
 
             {/* <Route path="/not-found" component={NotFound} /> */}

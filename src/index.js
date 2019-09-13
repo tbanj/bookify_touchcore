@@ -9,7 +9,6 @@ import * as serviceWorker from './serviceWorker';
 
 
 import "./../node_modules/react-bootstrap-typeahead/css/Typeahead-bs4.css";
-// import "./../node_modules/bootstrap/dist/css/bootstrap.css";
 ReactDOM.render(
     <BrowserRouter>
         <App />
