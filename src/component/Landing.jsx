@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { AsyncTypeahead, FormGroup, InputGroup } from 'react-bootstrap-typeahead';
-import { axiosTest, checkData } from "../service/flightService.js";
+import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+import { axiosTest } from "../service/flightService.js";
 
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 
@@ -97,7 +97,7 @@ class Landing extends Component {
 
 
                     <div className="tab-content _pt-20">
-                      <div className="tab-pane active" id="SearchAreaTabs-1" role={"tab-panel"}>
+                      <div className="tab-pane active" id="SearchAreaTabs-1" role={"tabpanel"}>
                         <div className="theme-search-area theme-search-area-stacked">
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
@@ -210,7 +210,7 @@ class Landing extends Component {
                           </div>
                         </div>
                       </div>
-                      <div className="tab-pane" id="SearchAreaTabs-2" role={"tab-panel"}>
+                      <div className="tab-pane" id="SearchAreaTabs-2" role={"tabpanel"}>
                         <div className="theme-search-area theme-search-area-stacked">
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
@@ -289,7 +289,7 @@ class Landing extends Component {
                           </div>
                         </div>
                       </div>
-                      <div className="tab-pane" id="SearchAreaTabs-3" role={"tab-panel"}>
+                      <div className="tab-pane" id="SearchAreaTabs-3" role={"tabpanel"}>
                         <div className="theme-search-area theme-search-area-stacked">
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
@@ -310,7 +310,7 @@ class Landing extends Component {
                                             <div>
                                               {option.name}
                                               <div>
-                                                <small>Capital: {option.code}</small>
+                                                <small>{option.code}</small>
                                               </div>
                                             </div>
                                           )}
@@ -450,7 +450,7 @@ class Landing extends Component {
                           </div>
                         </div>
                       </div>
-                      <div className="tab-pane" id="SearchAreaTabs-4" role={"tab-panel"}>
+                      <div className="tab-pane" id="SearchAreaTabs-4" role={"tabpanel"}>
                         <div className="theme-search-area theme-search-area-stacked">
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
@@ -521,7 +521,7 @@ class Landing extends Component {
                           </div>
                         </div>
                       </div>
-                      <div className="tab-pane" id="SearchAreaTabs-5" role={"tab-panel"}>
+                      <div className="tab-pane" id="SearchAreaTabs-5" role={"tabpanel"}>
                         <div className="theme-search-area theme-search-area-stacked">
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
