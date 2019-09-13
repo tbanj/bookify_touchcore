@@ -1,0 +1,143 @@
+{
+    "header": {
+        "cookie": ""
+    },
+    "body": {
+        "status": 200,
+        "message": "Matching airport(s) found",
+        "data": [
+            {
+                "id": 10097,
+                "code": "LOS",
+                "name": "Lagos-Murtala Muhammed Intl, Nigeria",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "182",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:50",
+                "updated_at": "2019-09-12 17:47:49"
+            },
+            {
+                "id": 293,
+                "code": "ING",
+                "name": "Lago Argentino, SC, Argentina",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:09",
+                "updated_at": "2019-09-12 11:36:29"
+            },
+            {
+                "id": 7219,
+                "code": "LGQ",
+                "name": "Lago Agrio, Ecuador",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:09",
+                "updated_at": "2019-09-12 11:36:38"
+            },
+            {
+                "id": 10045,
+                "code": "KCL",
+                "name": "Chignik-Lagoon, AK, United States",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:49",
+                "updated_at": "2019-09-12 11:36:33"
+            },
+            {
+                "id": 10308,
+                "code": "NLG",
+                "name": "Nelson Lagoon, AK, United States",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:53",
+                "updated_at": "2019-09-12 11:36:48"
+            },
+            {
+                "id": 3438,
+                "code": "BQS",
+                "name": "Blagoveshchensk-Ignatyevo, Russian Federation",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:30",
+                "updated_at": "2019-09-12 11:36:06"
+            },
+            {
+                "id": 2722,
+                "code": "LLG",
+                "name": "Chillagoe, QL, Australia",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:25",
+                "updated_at": "2019-09-12 11:36:39"
+            },
+            {
+                "id": 5288,
+                "code": "AYL",
+                "name": "Anthony Lagoon, NT, Australia",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:46",
+                "updated_at": "2019-09-12 11:36:00"
+            },
+            {
+                "id": 3510,
+                "code": "DIW",
+                "name": "Dickwella-Mawella Lagoon, Sri Lanka",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:31",
+                "updated_at": "2019-09-12 11:36:14"
+            },
+            {
+                "id": 3257,
+                "code": "LOM",
+                "name": "Lagos De Moreno-Francisco, Mexico",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:29",
+                "updated_at": "2019-09-12 11:36:39"
+            },
+            {
+                "id": 10440,
+                "code": "BXL",
+                "name": "Blue Lagoon, Fiji",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:55",
+                "updated_at": "2019-09-12 11:36:07"
+            }
+        ]
+    }
+}
