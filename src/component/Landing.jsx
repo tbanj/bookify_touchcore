@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+import { AsyncTypeahead, FormGroup, InputGroup } from 'react-bootstrap-typeahead';
 import { axiosTest, checkData } from "../service/flightService.js";
+
+import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
+
+import './landing.css';
 
 class Landing extends Component {
   constructor(props) {
@@ -65,44 +69,9 @@ class Landing extends Component {
                   <div>
 
 
-                    <div className={`tab-pane  active`} id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                    <div id="pills-home" role="tabpanel" aria-labelledby="">
 
-                      <AsyncTypeahead
-                        {...this.state}
-                        minLength={3}
-                        filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
-                        labelKey="name"
-                        renderMenuItemChildren={(option) => (
-                          <div>
-                            {option.name}
-                            <div>
-                              <small>Capital: {option.code}</small>
-                            </div>
-                          </div>
-                        )}
 
-                        onSearch={query => {
-                          this.setState({ isLoading: true });
-                          fetch(`http://www.ije-api.tcore.xyz/v1/plugins/airports-type-ahead/${query}`)
-                            .then(resp => resp.json())
-                            .then(({ body }) => {
-                              // console.log(body.data);
-                              console.log(body.data);
-                              const options = body.data;
-                              return { options };
-                            })
-                            .then(({ options }) => {
-                              this.setState({
-                                isLoading: false,
-                                options
-                              });
-                            });
-                        }}
-                        options={this.state.options}
-
-                        placeholder="Search for users"
-
-                      />
 
                     </div>
 
@@ -130,93 +99,6 @@ class Landing extends Component {
                     <div className="tab-content _pt-20">
                       <div className="tab-pane active" id="SearchAreaTabs-1" role={"tab-panel"}>
                         <div className="theme-search-area theme-search-area-stacked">
-                          {/* <div className="theme-search-area-form">
-                            <div className="row" data-gutter="none">
-                              <div className="col-md-3 ">
-                                <div className="theme-search-area-section first theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                  <div className="theme-search-area-section-inner">
-                                    <i className="theme-search-area-section-icon lin lin-location-pin"></i>
-                                    <input className="theme-search-area-section-input typeahead" type="text" placeholder="Hotel Location" data-provide="typeahead" />
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col-md-4 ">
-                                <div className="row" data-gutter="none">
-                                  <div className="col-md-6 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-calendar"></i>
-                                        <input className="theme-search-area-section-input datePickerStart _mob-h" default defaultValue="Wed 06/27" type="text" placeholder="Check-in" />
-                                        <input className="theme-search-area-section-input _desk-h mobile-picker" default defaultValue="2018-06-27" type="date" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-6 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-calendar"></i>
-                                        <input className="theme-search-area-section-input datePickerEnd _mob-h" defaultValue="Mon 07/02" type="text" placeholder="Check-out" />
-                                        <input className="theme-search-area-section-input _desk-h mobile-picker" defaultValue="2018-07-02" type="date" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col-md-4 ">
-                                <div className="row" data-gutter="none">
-                                  <div className="col-md-6 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr quantity-selector" data-increment="Rooms">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-tag"></i>
-                                        <input className="theme-search-area-section-input" defaultValue="1 Room" type="text" />
-                                        <div className="quantity-selector-box" id="HotelSearchRooms">
-                                          <div className="quantity-selector-inner">
-                                            <p className="quantity-selector-title">Rooms</p>
-                                            <ul className="quantity-selector-controls">
-                                              <li className="quantity-selector-decrement">
-                                                <Link to={""}>&#45;</Link>
-                                              </li>
-                                              <li className="quantity-selector-current">1</li>
-                                              <li className="quantity-selector-increment">
-                                                <Link to={""}>&#43;</Link>
-                                              </li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-6 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr quantity-selector" data-increment="Guests">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-people"></i>
-                                        <input className="theme-search-area-section-input" defaultValue="2 Guests" type="text" />
-                                        <div className="quantity-selector-box" id="HotelSearchGuests">
-                                          <div className="quantity-selector-inner">
-                                            <p className="quantity-selector-title">Guests</p>
-                                            <ul className="quantity-selector-controls">
-                                              <li className="quantity-selector-decrement">
-                                                <Link to={""}>&#45;</Link>
-                                              </li>
-                                              <li className="quantity-selector-current">1</li>
-                                              <li className="quantity-selector-increment">
-                                                <Link to={""}>&#43;</Link>
-                                              </li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col-md-1 ">
-                                <button className="theme-search-area-submit _mt-0 theme-search-area-submit-no-border theme-search-area-submit-curved">Search</button>
-                              </div>
-                            </div>
-                          </div> */}
-
-                          {/* start */}
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
                               <div className="col-md-3 ">
@@ -302,7 +184,8 @@ class Landing extends Component {
                               </div>
                             </div>
                           </div>
-                          {/* end */}
+
+
                           <div className="theme-search-area-options _mob-h theme-search-area-options-white theme-search-area-options-dot-primary-inverse clearfix">
                             <div className="btn-group theme-search-area-options-list" data-toggle="buttons">
                               <label className="btn btn-primary active">
@@ -415,16 +298,92 @@ class Landing extends Component {
                                   <div className="col-md-6 ">
                                     <div className="theme-search-area-section first theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
                                       <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-location-pin"></i>
-                                        <input className="theme-search-area-section-input typeahead" type="text" placeholder="Departure" data-provide="typeahead" />
+                                        {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
+                                        <AsyncTypeahead className="my-4"
+
+                                          {...this.state}
+                                          bsSize={'large'}
+                                          minLength={3}
+                                          filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
+                                          labelKey="name"
+                                          renderMenuItemChildren={(option) => (
+                                            <div>
+                                              {option.name}
+                                              <div>
+                                                <small>Capital: {option.code}</small>
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          onSearch={query => {
+                                            this.setState({ isLoading: true });
+                                            fetch(`http://www.ije-api.tcore.xyz/v1/plugins/airports-type-ahead/${query}`)
+                                              .then(resp => resp.json())
+                                              .then(({ body }) => {
+                                                // console.log(body.data);
+                                                console.log(body.data);
+                                                const options = body.data;
+                                                return { options };
+                                              })
+                                              .then(({ options }) => {
+                                                this.setState({
+                                                  isLoading: false,
+                                                  options
+                                                });
+                                              });
+                                          }}
+                                          options={this.state.options}
+
+                                          placeholder="Departure"
+
+                                        />
                                       </div>
                                     </div>
                                   </div>
                                   <div className="col-md-6 ">
                                     <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
                                       <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-location-pin"></i>
-                                        <input className="theme-search-area-section-input typeahead" type="text" placeholder="Arrival" data-provide="typeahead" />
+                                        {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
+                                        {/* <input className="theme-search-area-section-input typeahead" type="text" placeholder="Arrival" data-provide="typeahead" />
+                                       */}
+
+                                        <AsyncTypeahead className="my-4"
+                                          {...this.state}
+                                          bsSize={'large'}
+                                          minLength={3}
+                                          filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
+                                          labelKey="name"
+                                          renderMenuItemChildren={(option) => (
+                                            <div>
+                                              {option.name}
+                                              <div>
+                                                <small>{option.code}</small>
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          onSearch={query => {
+                                            this.setState({ isLoading: true });
+                                            fetch(`http://www.ije-api.tcore.xyz/v1/plugins/airports-type-ahead/${query}`)
+                                              .then(resp => resp.json())
+                                              .then(({ body }) => {
+                                                // console.log(body.data);
+                                                console.log(body.data);
+                                                const options = body.data;
+                                                return { options };
+                                              })
+                                              .then(({ options }) => {
+                                                this.setState({
+                                                  isLoading: false,
+                                                  options
+                                                });
+                                              });
+                                          }}
+                                          options={this.state.options}
+
+                                          placeholder="Arrival"
+
+                                        />
                                       </div>
                                     </div>
                                   </div>
