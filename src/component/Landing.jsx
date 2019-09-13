@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+
+import env from "../env.js";
+
 import { axiosTest } from "../service/flightService.js";
 
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
@@ -317,7 +320,7 @@ class Landing extends Component {
 
                                           onSearch={query => {
                                             this.setState({ isLoading: true });
-                                            fetch(`http://www.ije-api.tcore.xyz/v1/plugins/airports-type-ahead/${query}`)
+                                            fetch(`${env.airports_type_ahead_url}/${query}`)
                                               .then(resp => resp.json())
                                               .then(({ body }) => {
                                                 // console.log(body.data);
@@ -364,7 +367,7 @@ class Landing extends Component {
 
                                           onSearch={query => {
                                             this.setState({ isLoading: true });
-                                            fetch(`http://www.ije-api.tcore.xyz/v1/plugins/airports-type-ahead/${query}`)
+                                            fetch(`${env.airports_type_ahead_url}/${query}`)
                                               .then(resp => resp.json())
                                               .then(({ body }) => {
                                                 // console.log(body.data);
