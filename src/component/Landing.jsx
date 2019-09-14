@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
-
+import { toast } from 'react-toastify';
 import env from "../env.js";
-
 import { axiosTest } from "../service/flightService.js";
 
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
-
 import './landing.css';
 
 class Landing extends Component {
@@ -15,10 +13,13 @@ class Landing extends Component {
     super(props)
     this.state = {
       data: {}, isLoading: false,
-      filterBy: 'callback', multiple: false, showHome: 'show', options: [], selectedUsers: []
+      departFilterBy: 'callback', departMultiple: false, departOptions: [], departIsloading: false,
     }
-    this.getDetail = this.getDetail.bind(this)
+    this.getDetail = this.getDetail.bind(this);
+    this.handleDoesFormHaveErrors = this.handleDoesFormHaveErrors.bind(this);
+    this.handleSubmitForm = this.handleSubmitForm.bind(this);
   }
+
   getDetail() {
     axiosTest().then(data => {
       if (data) {
@@ -27,11 +28,38 @@ class Landing extends Component {
         this.setState({ data })
       }
     }, (error) => {
-      console.log('onRejected function called add: ' + error);
+      if (error.response && error.response.status === 404)
+        toast.error('error encounter when fetching sample airport list');
+
     })
 
+  }
+
+  handleOnChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value }, () => {
+      console.log("pick 2 dates: ", e.target.value);
+      // if (this.state.fullname) {
+      // 	let name_split = this.state.fullname.split(" ");
+      // 	if (name_split.length < 2 || name_split[1].length < 1 || name_split[0].length < 1) {
+      // 		this.setState({ fullname: "", error: { fullname: "your full name is not complete" } });
+      // 		return;
+      // 	}
+      // 	this.setState({ first_name: name_split[0], last_name: name_split[1], error: { fullname: "" } });
+      // }
+      this.setState({ error: { errorMessage: '', errorClass: 'd-none' } });
+    });
 
   }
+
+  handleDoesFormHaveErrors() {
+
+  }
+
+  handleSubmitForm() {
+
+  }
+
+
   componentDidMount() {
     this.getDetail();
 
@@ -42,14 +70,30 @@ class Landing extends Component {
 
   }
   render() {
+    let injectedProps = {}
+    let departInjectedProps = {}
+    // const {options, labelKey } =this.props;
+    // injectedProps.options.sort((optionA, optionB) => {
+    //   const labelA = optionA[labelKey];
+    //   const labelB = optionB[labelKey];
+    //   return labelA > labelB;
+    // });
+    injectedProps.clearButton = true;
 
-    const { filterBy } = this.state;
+    const { filterBy, departFilterBy } = this.state;
     const filterByCallback = (option, props) => (
       option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
       option.name.toLowerCase().indexOf(props.text.toLowerCase()) !== -1
     );
+    const departFilterByCallback = (option, props) => (
+      option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
+      option.name.toLowerCase().indexOf(props.text.toLowerCase()) !== -1
+    );
+
+    // departFilterBy: 'callback', departMultiple: false,  departOptions: []
 
     const filterByFields = ['code', 'name'];
+    const departFilterByFields = ['code', 'name'];
 
     return (
       <React.Fragment>
@@ -303,11 +347,12 @@ class Landing extends Component {
                                       <div className="theme-search-area-section-inner">
                                         {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
                                         <AsyncTypeahead className="my-4"
-
-                                          {...this.state}
+                                          // departFilterBy: 'callback', departMultiple: false,  departOptions: []
+                                          clearButton={false}
+                                          // {...this.state} state for this div only
                                           bsSize={'large'}
                                           minLength={3}
-                                          filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
+                                          filterBy={departFilterBy === 'callback' ? departFilterByCallback : departFilterByFields}
                                           labelKey="name"
                                           renderMenuItemChildren={(option) => (
                                             <div>
@@ -319,7 +364,7 @@ class Landing extends Component {
                                           )}
 
                                           onSearch={query => {
-                                            this.setState({ isLoading: true });
+                                            this.setState({ departIsLoading: true });
                                             fetch(`${env.airports_type_ahead_url}/${query}`)
                                               .then(resp => resp.json())
                                               .then(({ body }) => {
@@ -330,12 +375,17 @@ class Landing extends Component {
                                               })
                                               .then(({ options }) => {
                                                 this.setState({
-                                                  isLoading: false,
-                                                  options
+                                                  departIsLoading: false,
+                                                  departOptions: options
                                                 });
                                               });
                                           }}
-                                          options={this.state.options}
+                                          options={this.state.departOptions}
+                                          onChange={(selected) => {
+                                            toast(selected[0].code);
+                                            console.log(selected[0].code)
+                                            this.setState({ departSelected: selected });
+                                          }}
 
                                           placeholder="Departure"
 
@@ -351,7 +401,8 @@ class Landing extends Component {
                                        */}
 
                                         <AsyncTypeahead className="my-4"
-                                          {...this.state}
+                                          // {...injectedProps}
+                                          // {...this.state}
                                           bsSize={'large'}
                                           minLength={3}
                                           filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
@@ -383,7 +434,12 @@ class Landing extends Component {
                                               });
                                           }}
                                           options={this.state.options}
-
+                                          onChange={(selected) => {
+                                            toast(selected[0].code);
+                                            console.log(selected[0].code)
+                                            this.setState({ selected: selected });
+                                          }}
+                                          selected={this.state.selected}
                                           placeholder="Arrival"
 
                                         />
@@ -437,7 +493,7 @@ class Landing extends Component {
                                 </div>
                               </div>
                               <div className="col-md-1 ">
-                                <button className="theme-search-area-submit _mt-0 theme-search-area-submit-no-border theme-search-area-submit-curved">Search</button>
+                                <button disabled={this.handleDoesFormHaveErrors()} onClick={this.handleSubmitForm} className="theme-search-area-submit _mt-0 theme-search-area-submit-no-border theme-search-area-submit-curved">Search</button>
                               </div>
                             </div>
                           </div>

@@ -3,7 +3,7 @@ import http from './httpService.js';
 
 
 export function axiosTest() {
-    return http.get('http://localhost:3000/data/airport_typehead.json').then(response => {
+    return http.get('https://localhost:3000/data/airport_typehead.json').then(response => {
         // returning the data here allows the caller to get it through another .then(...)
         return response.data
     })

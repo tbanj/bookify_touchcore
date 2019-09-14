@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // import logo from './logo.svg';
-
+import { ToastContainer } from "react-toastify";
 import { Route, Switch } from "react-router-dom";
 import { ResultContext } from './component/shared/result-context.js';
 import Landing from './component/Landing';
@@ -11,6 +11,7 @@ import FlightSearch from './component/FlightSearch';
 import Testting from './component/template/Testting.jsx';
 
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 class App extends Component {
   state = {
@@ -23,6 +24,7 @@ class App extends Component {
   render() {
     return (
       <div className="content">
+        <ToastContainer />
         <ResultContext.Provider value={{ val: this.state.resultName, onUserInput: this.onUserInput }}>
           <NavBar />
           <Switch>

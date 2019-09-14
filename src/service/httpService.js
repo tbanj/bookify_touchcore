@@ -1,6 +1,6 @@
 import axios from 'axios';
 import logService from './logService';
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 
 
@@ -10,7 +10,7 @@ axios.interceptors.response.use(null, error => {
     if (!expectedErrror) {
         logService.log(error);
         console.log("Loggin error", error);
-        // toast.error("an unexpected error occurred");
+        toast.error("an unexpected error occurred");
         // alert("an unexpected error occurred with movie");
 
         // or

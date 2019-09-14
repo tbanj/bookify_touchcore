@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-
-
+import logService from './service/logService.js';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-
 import "./../node_modules/react-bootstrap-typeahead/css/Typeahead-bs4.css";
+
 ReactDOM.render(
     <BrowserRouter>
         <App />
