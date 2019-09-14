@@ -12,7 +12,7 @@ class Landing extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      data: {}, isLoading: false,
+      data: {}, isLoading: false, flight_departure_date: new Date(), flight_arrival_date: "",
       departFilterBy: 'callback', departMultiple: false, departOptions: [], departIsloading: false,
     }
     this.getDetail = this.getDetail.bind(this);
@@ -35,19 +35,28 @@ class Landing extends Component {
 
   }
 
+  handleStartTime = e => {
+    let startTimeValue = e.target.value;
+    this.setState({ startTime: startTimeValue, stopTime: startTimeValue, timeDuration: `0 Day` });
+    startTimeValue = 0;
+
+  }
+
   handleOnChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value }, () => {
-      console.log("pick 2 dates: ", e.target.value);
-      // if (this.state.fullname) {
-      // 	let name_split = this.state.fullname.split(" ");
-      // 	if (name_split.length < 2 || name_split[1].length < 1 || name_split[0].length < 1) {
-      // 		this.setState({ fullname: "", error: { fullname: "your full name is not complete" } });
-      // 		return;
-      // 	}
-      // 	this.setState({ first_name: name_split[0], last_name: name_split[1], error: { fullname: "" } });
-      // }
-      this.setState({ error: { errorMessage: '', errorClass: 'd-none' } });
-    });
+    // this.setState({})
+    console.log("pick 2 dates: ", e.target.name, this.state.flight_departure_date);
+    // this.setState({ [e.target.name]: e.target.value }, () => {
+    //   console.log("pick 2 dates: ", e.target.name);
+    //   // if (this.state.fullname) {
+    //   // 	let name_split = this.state.fullname.split(" ");
+    //   // 	if (name_split.length < 2 || name_split[1].length < 1 || name_split[0].length < 1) {
+    //   // 		this.setState({ fullname: "", error: { fullname: "your full name is not complete" } });
+    //   // 		return;
+    //   // 	}
+    //   // 	this.setState({ first_name: name_split[0], last_name: name_split[1], error: { fullname: "" } });
+    //   // }
+    //   this.setState({ error: { errorMessage: '', errorClass: 'd-none' } });
+    // });
 
   }
 
@@ -65,10 +74,7 @@ class Landing extends Component {
 
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log("cdu: ", this.state.data);
-
-  }
+  
   render() {
     let injectedProps = {}
     let departInjectedProps = {}
@@ -80,7 +86,8 @@ class Landing extends Component {
     // });
     injectedProps.clearButton = true;
 
-    const { filterBy, departFilterBy } = this.state;
+    const { filterBy, departFilterBy, flight_departure_date, flight_arrival_date,
+      isLoading, departIsLoading } = this.state;
     const filterByCallback = (option, props) => (
       option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
       option.name.toLowerCase().indexOf(props.text.toLowerCase()) !== -1
@@ -346,10 +353,10 @@ class Landing extends Component {
                                     <div className="theme-search-area-section first theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
                                       <div className="theme-search-area-section-inner">
                                         {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
-                                        <AsyncTypeahead className="my-4"
+                                        <AsyncTypeahead className="my-4" id="depart_async"
                                           // departFilterBy: 'callback', departMultiple: false,  departOptions: []
                                           clearButton={false}
-                                          // {...this.state} state for this div only
+                                          {...this.state} // passing state to component
                                           bsSize={'large'}
                                           minLength={3}
                                           filterBy={departFilterBy === 'callback' ? departFilterByCallback : departFilterByFields}
@@ -364,18 +371,23 @@ class Landing extends Component {
                                           )}
 
                                           onSearch={query => {
-                                            this.setState({ departIsLoading: true });
+                                            this.setState({ isLoading: true });
                                             fetch(`${env.airports_type_ahead_url}/${query}`)
-                                              .then(resp => resp.json())
+                                              .then(resp => resp.json()
+                                              , (error)=>{
+                                                toast.error("a: ",error.reponse);
+                                                })
                                               .then(({ body }) => {
                                                 // console.log(body.data);
                                                 console.log(body.data);
                                                 const options = body.data;
                                                 return { options };
-                                              })
+                                              }, (error)=>{
+                                                toast.error(error.reponse);
+                                                })
                                               .then(({ options }) => {
                                                 this.setState({
-                                                  departIsLoading: false,
+                                                  isLoading: false,
                                                   departOptions: options
                                                 });
                                               });
@@ -400,7 +412,7 @@ class Landing extends Component {
                                         {/* <input className="theme-search-area-section-input typeahead" type="text" placeholder="Arrival" data-provide="typeahead" />
                                        */}
 
-                                        <AsyncTypeahead className="my-4"
+                                        <AsyncTypeahead className="my-4" id="arrival_async" isLoading={isLoading}
                                           // {...injectedProps}
                                           // {...this.state}
                                           bsSize={'large'}
@@ -454,8 +466,9 @@ class Landing extends Component {
                                     <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
                                       <div className="theme-search-area-section-inner">
                                         <i className="theme-search-area-section-icon lin lin-calendar"></i>
-                                        <input className="theme-search-area-section-input datePickerStart _mob-h" defaultValue="Wed 06/27" type="text" placeholder="Check-in" />
-                                        <input className="theme-search-area-section-input _desk-h mobile-picker" defaultValue="2018-06-27" type="date" />
+                                        <input name="flight_departure_date" id="flight_departure_date" value={flight_departure_date} type="text" placeholder="Check-in"
+                                        className="theme-search-area-section-input datePickerStart _mob-h" onChange={this.handleOnChange}  />
+                                        <input className="theme-search-area-section-input _desk-h mobile-picker"  onClick={this.handleOnChange} value={flight_departure_date} type="date" />
                                       </div>
                                     </div>
                                   </div>
@@ -463,8 +476,11 @@ class Landing extends Component {
                                     <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
                                       <div className="theme-search-area-section-inner">
                                         <i className="theme-search-area-section-icon lin lin-calendar"></i>
-                                        <input className="theme-search-area-section-input datePickerEnd _mob-h" defaultValue="Mon 07/02" type="text" placeholder="Check-out" />
-                                        <input className="theme-search-area-section-input _desk-h mobile-picker" defaultValue="2018-07-02" type="date" />
+                                        <input className="theme-search-area-section-input datePickerEnd _mob-h" 
+                                           type="text" placeholder="Check-out" onChange={this.handleOnChange}/>
+                                        <input name="flight_arrival_date" id="flight_arrival_date" 
+                                          className="theme-search-area-section-input _desk-h mobile-picker" onChange={()=> {console.log("flight arrival: ", this.state.flight_arrival_data)}} 
+                                          value={flight_arrival_date} type="date" />
                                       </div>
                                     </div>
                                   </div>
