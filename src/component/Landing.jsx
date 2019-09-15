@@ -456,7 +456,7 @@ class Landing extends Component {
                                         }}
                                         options={this.state.options}
                                         onChange={(selected) => {
-                                          toast(selected[0].code);
+                                          toast(selected[0].name);
                                           this.setState({ departSelected: selected });
                                         }}
 
