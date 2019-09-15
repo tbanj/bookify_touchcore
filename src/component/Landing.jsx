@@ -15,8 +15,8 @@ import './landing.css';
 const dataItem = new Storage();
 
 let cabin_class = [{ id: 0, val: 'First' }, { id: 1, val: 'Economy' }, { id: 2, val: 'Business' }, { id: 3, val: 'All' }];
-let adult_number = [{ id: 0, val: 1 }, { id: 1, val: 2 }, { id: 2, val: 3 }, { id: 3, val: 4 }, { id: 4, val: 5 }, { id: 5, val: 6 }, { id: 6, val: 7 }
-  , { id: 7, val: 8 }, { id: 8, val: 9 }];
+let adult_number = [{ id: 0, val: 0 }, { id: 1, val: 1 }, { id: 2, val: 2 }, { id: 3, val: 2 }, { id: 4, val: 4 }, { id: 5, val: 5 }, { id: 6, val: 6 }
+  , { id: 7, val: 7 }, { id: 8, val: 8 }, { id: 9, val: 9 }];
 
 let minDate = new Date();
 minDate = `${minDate.getFullYear()}-0${minDate.getMonth() + 1}-${minDate.getDate()}`;
