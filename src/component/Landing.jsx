@@ -1,19 +1,33 @@
 import React, { Component } from 'react';
+
 import { Link } from "react-router-dom";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { toast } from 'react-toastify';
+import http from '../service/httpService';
 import env from "../env.js";
-import { axiosTest } from "../service/flightService.js";
+import { ResultContext } from './shared/result-context';
+import { axiosTest, requestToken } from "../service/flightService.js";
+
+import Storage from '../service/Storage.js';
 
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 import './landing.css';
 
+const dataItem = new Storage();
+
+let cabin_class = [{ id: 0, val: 'First' }, { id: 1, val: 'Economy' }, { id: 2, val: 'Business' }, { id: 3, val: 'All' }];
+let adult_number = [{ id: 0, val: 1 }, { id: 1, val: 2 }, { id: 2, val: 3 }, { id: 3, val: 4 }, { id: 4, val: 5 }, { id: 5, val: 6 }, { id: 6, val: 7 }
+  , { id: 7, val: 8 }, { id: 8, val: 9 }];
+
+let minDate = new Date();
+minDate = `${minDate.getFullYear()}-0${minDate.getMonth() + 1}-${minDate.getDate()}`;
 class Landing extends Component {
-  constructor(props) {
-    super(props)
+  constructor() {
+    super()
     this.state = {
-      data: {}, isLoading: false, flight_departure_date: new Date(), flight_arrival_date: "",
+      data: {}, schedule_duration: 0, isLoading: false, flight_departure_date: minDate, flight_arrival_date: minDate,
       departFilterBy: 'callback', departMultiple: false, departOptions: [], departIsloading: false,
+      no_of_children: "", no_of_infants: "", no_of_adults: "", cabin_type: "", api_token: ''
     }
     this.getDetail = this.getDetail.bind(this);
     this.handleDoesFormHaveErrors = this.handleDoesFormHaveErrors.bind(this);
@@ -23,8 +37,6 @@ class Landing extends Component {
   getDetail() {
     axiosTest().then(data => {
       if (data) {
-        console.log(
-          { message: 'Request received!', data });
         this.setState({ data })
       }
     }, (error) => {
@@ -33,38 +45,130 @@ class Landing extends Component {
 
     })
 
+    requestToken().then(data => {
+      if (data) {
+        this.setState({ api_token: data.body.data.api_token })
+      }
+    }, (error) => {
+      if (error.response && error.response.status === 422)
+        toast.error('data not found');
+
+    })
+
   }
 
-  handleStartTime = e => {
+  handleStartTime = (e) => {
+    e.preventDefault();
     let startTimeValue = e.target.value;
-    this.setState({ startTime: startTimeValue, stopTime: startTimeValue, timeDuration: `0 Day` });
+    this.setState({ flight_departure_date: startTimeValue, flight_arrival_date: startTimeValue });
     startTimeValue = 0;
 
   }
 
-  handleOnChange = (e) => {
-    // this.setState({})
-    console.log("pick 2 dates: ", e.target.name, this.state.flight_departure_date);
-    // this.setState({ [e.target.name]: e.target.value }, () => {
-    //   console.log("pick 2 dates: ", e.target.name);
-    //   // if (this.state.fullname) {
-    //   // 	let name_split = this.state.fullname.split(" ");
-    //   // 	if (name_split.length < 2 || name_split[1].length < 1 || name_split[0].length < 1) {
-    //   // 		this.setState({ fullname: "", error: { fullname: "your full name is not complete" } });
-    //   // 		return;
-    //   // 	}
-    //   // 	this.setState({ first_name: name_split[0], last_name: name_split[1], error: { fullname: "" } });
-    //   // }
-    //   this.setState({ error: { errorMessage: '', errorClass: 'd-none' } });
-    // });
+  handleStopTime = e => {
 
+    let stop = new Date(e.target.value);
+    let start = new Date(this.state.flight_departure_date);
+    let diff = Math.floor((Date.UTC(stop.getFullYear(), stop.getMonth(), stop.getDate()) - Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) / (1000 * 60 * 60 * 24));
+
+    this.setState({ schedule_duration: diff, flight_arrival_date: e.target.value });
+    diff = 0;
+  }
+
+  handleOnChange = (e) => {
+
+    this.setState({ [e.target.name]: e.target.value }, () => { });
   }
 
   handleDoesFormHaveErrors() {
+    const required = ['no_of_children', 'no_of_infants', 'no_of_adults', 'cabin_type'];
+    let emptyFields = 0;
+    required.forEach(field => {
+      if (this.state[field] === '' || this.state.no_of_adults === 'No of Adults (> 12 yo)') {
 
+        ; ++emptyFields;
+      }
+
+      if (!this.state.selected || !this.state.departSelected
+        || this.state.no_of_children === 'No of Children (2 - 12 yo)') {
+        ; ++emptyFields;
+      }
+
+    });
+
+    if (emptyFields > 0) { return true; }
+    else {
+      return false;
+    }
   }
 
+  coverDate(date) {
+    return new Date(date).toLocaleDateString();
+  }
+
+
+
   handleSubmitForm() {
+    if (this.handleDoesFormHaveErrors()) return;
+    try {
+      let storeData = [];
+      const detail = {
+        "header": { "cookie": this.state.api_token },
+        "body": {
+          "origin_destinations": [
+            {
+              "departure_city": this.state.departSelected[0].code,
+              "destination_city": this.state.selected[0].code,
+              "departure_date": this.coverDate(this.state.flight_departure_date),
+              "return_date": ""
+            }
+          ],
+          "search_param": {
+
+            "no_of_adult": this.state.no_of_adults,
+            "no_of_child": this.state.no_of_children,
+            "no_of_infant": this.state.no_of_infants,
+            "preferred_airline_code": "",
+            "calendar": false,
+            "cabin": this.state.cabin_type
+          }
+        }
+      }
+      storeData.push(detail);
+
+      // if (detail['referral_code'].trim().length < 1) delete detail.referral_code;
+      // const res = await http.post(`${env.airports_type_ahead_url}/v1/flight/search-flight`, detail);
+
+      // use below to send the whole data to the second page
+      let messaged = this.context;
+      messaged.onUserInput(storeData);
+      dataItem.storeItem(storeData);
+      this.props.history.push('/flight-search');
+
+    } catch (error) {
+      if (error.response && error.response.status === 422)
+        toast.error('error encounter when fetching sample airport list');
+    }
+
+
+    // fetch(`${env.airports_type_ahead_url}/v1/flight/search-flight`,detail)
+    // .then(resp => resp.json())
+    // .then(({ body }) => {
+    //   // console.log(body.data);
+    //   console.log(body.data);
+    //   const options = body.data;
+    //   return { options };
+    // })
+    // .then(({ options }) => {
+    //   this.setState({
+    //     isLoading: false,
+    //     departOptions: options
+    //   });
+    // }
+    //   , (error) => {
+    //     toast.error("please check your network ");
+    //   }
+    // );
 
   }
 
@@ -72,22 +176,19 @@ class Landing extends Component {
   componentDidMount() {
     this.getDetail();
 
+
   }
 
-  
+  componentDidUpdate(prevProps, prevState) {
+  }
+
+
   render() {
     let injectedProps = {}
-    let departInjectedProps = {}
-    // const {options, labelKey } =this.props;
-    // injectedProps.options.sort((optionA, optionB) => {
-    //   const labelA = optionA[labelKey];
-    //   const labelB = optionB[labelKey];
-    //   return labelA > labelB;
-    // });
     injectedProps.clearButton = true;
 
     const { filterBy, departFilterBy, flight_departure_date, flight_arrival_date,
-      isLoading, departIsLoading } = this.state;
+      isLoading } = this.state;
     const filterByCallback = (option, props) => (
       option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
       option.name.toLowerCase().indexOf(props.text.toLowerCase()) !== -1
@@ -101,7 +202,7 @@ class Landing extends Component {
 
     const filterByFields = ['code', 'name'];
     const departFilterByFields = ['code', 'name'];
-
+    let messaged = this.context;
     return (
       <React.Fragment>
 
@@ -139,7 +240,7 @@ class Landing extends Component {
                         <Link aria-controls="SearchAreaTabs-2" role="tab" data-toggle="tab" to={"#SearchAreaTabs-2"}>Homes</Link>
                       </li>
                       <li role="presentation">
-                        <Link aria-controls="SearchAreaTabs-3" role="tab" data-toggle="tab" to={"#SearchAreaTabs-3"}>Flights</Link>
+                        <Link aria-controls="SearchAreaTabs-3a" role="tab" data-toggle="tab" to={"#SearchAreaTabs-3a"}>Flights</Link>
                       </li>
                       <li role="presentation">
                         <Link aria-controls="SearchAreaTabs-4" role="tab" data-toggle="tab" to={"#SearchAreaTabs-4"}>Cars</Link>
@@ -343,175 +444,193 @@ class Landing extends Component {
                           </div>
                         </div>
                       </div>
-                      <div className="tab-pane" id="SearchAreaTabs-3" role={"tabpanel"}>
-                        <div className="theme-search-area theme-search-area-stacked">
-                          <div className="theme-search-area-form">
-                            <div className="row" data-gutter="none">
-                              <div className="col-md-5 ">
-                                <div className="row" data-gutter="none">
-                                  <div className="col-md-6 ">
-                                    <div className="theme-search-area-section first theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                      <div className="theme-search-area-section-inner">
-                                        {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
-                                        <AsyncTypeahead className="my-4" id="depart_async"
-                                          // departFilterBy: 'callback', departMultiple: false,  departOptions: []
-                                          clearButton={false}
-                                          {...this.state} // passing state to component
-                                          bsSize={'large'}
-                                          minLength={3}
-                                          filterBy={departFilterBy === 'callback' ? departFilterByCallback : departFilterByFields}
-                                          labelKey="name"
-                                          renderMenuItemChildren={(option) => (
+                      <div className="tab-pane" id="SearchAreaTabs-3a" role={"tabpanel"}>
+                        <div className="">
+                          <div className="">
+                            <form className="row " >
+                              <div className="row" >
+                                <div className="col-md-6 ">
+                                  <div className="theme-search-area-section first theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
+                                    <div className="theme-search-area-section-inner">
+                                      {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
+                                      <AsyncTypeahead className="my-4" id="depart_async"
+                                        // departFilterBy: 'callback', departMultiple: false,  departOptions: []
+                                        clearButton={false}
+                                        {...this.state} // passing state to component
+                                        bsSize={'large'}
+                                        minLength={3}
+                                        filterBy={departFilterBy === 'callback' ? departFilterByCallback : departFilterByFields}
+                                        labelKey="name"
+                                        renderMenuItemChildren={(option) => (
+                                          <div>
+                                            {option.name}
                                             <div>
-                                              {option.name}
-                                              <div>
-                                                <small>{option.code}</small>
-                                              </div>
+                                              <small>{option.code}</small>
                                             </div>
-                                          )}
+                                          </div>
+                                        )}
 
-                                          onSearch={query => {
-                                            this.setState({ isLoading: true });
-                                            fetch(`${env.airports_type_ahead_url}/${query}`)
-                                              .then(resp => resp.json()
-                                              , (error)=>{
-                                                toast.error("a: ",error.reponse);
-                                                })
-                                              .then(({ body }) => {
-                                                // console.log(body.data);
-                                                console.log(body.data);
-                                                const options = body.data;
-                                                return { options };
-                                              }, (error)=>{
-                                                toast.error(error.reponse);
-                                                })
-                                              .then(({ options }) => {
-                                                this.setState({
-                                                  isLoading: false,
-                                                  departOptions: options
-                                                });
+                                        onSearch={query => {
+                                          this.setState({ isLoading: true });
+                                          fetch(`${env.airports_type_ahead_url}/v1/plugins/airports-type-ahead/${query}`)
+                                            .then(resp => resp.json())
+                                            .then(({ body }) => {
+                                              const options = body.data;
+                                              return { options };
+                                            })
+                                            .then(({ options }) => {
+                                              this.setState({
+                                                isLoading: false,
+                                                options: options
                                               });
-                                          }}
-                                          options={this.state.departOptions}
-                                          onChange={(selected) => {
-                                            toast(selected[0].code);
-                                            console.log(selected[0].code)
-                                            this.setState({ departSelected: selected });
-                                          }}
+                                            }
+                                              , (error) => {
+                                                toast.error("please check your network ");
+                                              }
+                                            );
+                                        }}
+                                        options={this.state.options}
+                                        onChange={(selected) => {
+                                          toast(selected[0].code);
+                                          this.setState({ departSelected: selected });
+                                        }}
 
-                                          placeholder="Departure"
-
-                                        />
-                                      </div>
+                                        placeholder="Departure"
+                                        selected={this.state.departSelected}
+                                      />
                                     </div>
                                   </div>
-                                  <div className="col-md-6 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                      <div className="theme-search-area-section-inner">
-                                        {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
-                                        {/* <input className="theme-search-area-section-input typeahead" type="text" placeholder="Arrival" data-provide="typeahead" />
+                                </div>
+                                <div className="col-md-6 ">
+                                  <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
+                                    <div className="theme-search-area-section-inner">
+                                      {/* <i className="theme-search-area-section-icon lin lin-location-pin"></i> */}
+                                      {/* <input className="theme-search-area-section-input typeahead" type="text" placeholder="Arrival" data-provide="typeahead" />
                                        */}
 
-                                        <AsyncTypeahead className="my-4" id="arrival_async" isLoading={isLoading}
-                                          // {...injectedProps}
-                                          // {...this.state}
-                                          bsSize={'large'}
-                                          minLength={3}
-                                          filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
-                                          labelKey="name"
-                                          renderMenuItemChildren={(option) => (
+                                      <AsyncTypeahead className="my-4" id="arrival_async" isLoading={isLoading}
+                                        // {...injectedProps}
+                                        // {...this.state}
+                                        bsSize={'large'}
+                                        minLength={3}
+                                        filterBy={filterBy === 'callback' ? filterByCallback : filterByFields}
+                                        labelKey="name"
+                                        renderMenuItemChildren={(option) => (
+                                          <div>
+                                            {option.name}
                                             <div>
-                                              {option.name}
-                                              <div>
-                                                <small>{option.code}</small>
-                                              </div>
+                                              <small>{option.code}</small>
                                             </div>
-                                          )}
-
-                                          onSearch={query => {
-                                            this.setState({ isLoading: true });
-                                            fetch(`${env.airports_type_ahead_url}/${query}`)
-                                              .then(resp => resp.json())
-                                              .then(({ body }) => {
-                                                // console.log(body.data);
-                                                console.log(body.data);
-                                                const options = body.data;
-                                                return { options };
-                                              })
-                                              .then(({ options }) => {
-                                                this.setState({
-                                                  isLoading: false,
-                                                  options
-                                                });
-                                              });
-                                          }}
-                                          options={this.state.options}
-                                          onChange={(selected) => {
-                                            toast(selected[0].code);
-                                            console.log(selected[0].code)
-                                            this.setState({ selected: selected });
-                                          }}
-                                          selected={this.state.selected}
-                                          placeholder="Arrival"
-
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col-md-6 ">
-                                <div className="row" data-gutter="none">
-                                  <div className="col-md-4 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-calendar"></i>
-                                        <input name="flight_departure_date" id="flight_departure_date" value={flight_departure_date} type="text" placeholder="Check-in"
-                                        className="theme-search-area-section-input datePickerStart _mob-h" onChange={this.handleOnChange}  />
-                                        <input className="theme-search-area-section-input _desk-h mobile-picker"  onClick={this.handleOnChange} value={flight_departure_date} type="date" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-4 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-calendar"></i>
-                                        <input className="theme-search-area-section-input datePickerEnd _mob-h" 
-                                           type="text" placeholder="Check-out" onChange={this.handleOnChange}/>
-                                        <input name="flight_arrival_date" id="flight_arrival_date" 
-                                          className="theme-search-area-section-input _desk-h mobile-picker" onChange={()=> {console.log("flight arrival: ", this.state.flight_arrival_data)}} 
-                                          value={flight_arrival_date} type="date" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-4 ">
-                                    <div className="theme-search-area-section theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr quantity-selector" data-increment="Passengers">
-                                      <div className="theme-search-area-section-inner">
-                                        <i className="theme-search-area-section-icon lin lin-people"></i>
-                                        <input className="theme-search-area-section-input" defaultValue="1 Passenger" type="text" />
-                                        <div className="quantity-selector-box" id="FlySearchPassengers">
-                                          <div className="quantity-selector-inner">
-                                            <p className="quantity-selector-title">Passengers</p>
-                                            <ul className="quantity-selector-controls">
-                                              <li className="quantity-selector-decrement">
-                                                <Link to={""}>&#45;</Link>
-                                              </li>
-                                              <li className="quantity-selector-current">1</li>
-                                              <li className="quantity-selector-increment">
-                                                <Link to={""}>&#43;</Link>
-                                              </li>
-                                            </ul>
                                           </div>
-                                        </div>
-                                      </div>
+                                        )}
+
+                                        onSearch={query => {
+                                          this.setState({ isLoading: true });
+                                          fetch(`${env.airports_type_ahead_url}/v1/plugins/airports-type-ahead/${query}`)
+                                            .then(resp => resp.json())
+                                            .then(({ body }) => {
+                                              const options = body.data;
+                                              return { options };
+                                            })
+                                            .then(({ options }) => {
+                                              this.setState({
+                                                isLoading: false,
+                                                options
+                                              });
+                                            },
+                                              (error) => {
+                                                toast.error("please check your network ");
+                                              });
+                                        }}
+                                        options={this.state.options}
+                                        onChange={(selected) => {
+                                          this.setState({ selected: selected });
+                                        }}
+                                        selected={this.state.selected}
+                                        placeholder="Arrival"
+
+                                      />
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="col-md-1 ">
-                                <button disabled={this.handleDoesFormHaveErrors()} onClick={this.handleSubmitForm} className="theme-search-area-submit _mt-0 theme-search-area-submit-no-border theme-search-area-submit-curved">Search</button>
+                              <div className="row form-group" data-gutter="none">
+
+                                <div className="  col-md-3 ">
+
+                                  <div className="form-group">
+                                    <label htmlFor="depart_date" className="text-white">Departure City</label>
+                                    <div className="">
+                                      <i className=" iconColor  theme-search-area-section-icon lin lin-calendar"></i>
+
+                                      <input type="date" min={minDate} value={this.state.flight_departure_date}
+                                        onChange={this.handleStartTime} name="depart_date"
+                                        className=" innerDate addHeight form-control " ></input>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className=" col-md-3 marginleftDate">
+                                  <div className="form-group">
+                                    <label htmlFor="arrival_date" className="text-white">Arrival City</label>
+                                    <div className="">
+                                      <i className=" iconColor theme-search-area-section-icon lin lin-calendar"></i>
+
+                                      <input className="form-control addHeight innerDate" value={this.state.flight_arrival_date} onChange={this.handleStopTime} type="date"
+                                        min={this.state.flight_departure_date} />
+                                    </div>
+                                  </div>
+                                </div>
+
+
+                                <div className="col-md-3 form-group marginCabin">
+                                  <select className="form-control addHeight" onChange={this.handleOnChange} name="cabin_type">
+                                    <option value="default" >Select Cabin Class</option>
+                                    {cabin_class.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+
+                                  </select>
+                                </div>
                               </div>
-                            </div>
+
+                              <div className="row form-group" data-gutter="none">
+                                <div className="col-md-3 addMarginRight form-group">
+                                  <select className="form-control addHeight " onChange={this.handleOnChange} name="no_of_adults">
+                                    <option value="default" >No of Adults (> 12 yo)</option>
+                                    {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+
+                                  </select>
+                                </div>
+                                <div className="col-md-3 addMarginRight form-group">
+                                  <select className="form-control addHeight " onChange={this.handleOnChange} name="no_of_children">
+                                    <option value="default" >No of Children (2 - 12 yo)</option>
+                                    {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+
+                                  </select>
+                                </div>
+
+                                <div className="col-md-3 form-group">
+                                  <select className="form-control addHeight" onChange={this.handleOnChange} name="no_of_infants">
+                                    <option value="default" >No of Infants (0 - 2 yo)</option>
+                                    {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="row form-group">
+                                <div className="col-md-1 ">
+                                  <button type="button" disabled={this.handleDoesFormHaveErrors()} onClick={this.handleSubmitForm} className="submitButton">Search</button>
+                                </div>
+                              </div>
+                              {/* <ResultContext.Consumer>
+                                {({ val, onUserInput }) => (
+                                  
+                                )}
+                              </ResultContext.Consumer> */}
+                              {/* <div className="form-group">
+                                <input type="text" value={messaged.val} placeholder="input a trial text"
+                                  onChange={e => { messaged.onUserInput(e.target.value) }} />
+                              </div> */}
+                            </form>
                           </div>
                           <div className="theme-search-area-options theme-search-area-options-white theme-search-area-options-dot-primary-inverse clearfix">
                             <div className="btn-group theme-search-area-options-list" data-toggle="buttons">
@@ -1102,4 +1221,5 @@ class Landing extends Component {
   }
 }
 
+Landing.contextType = ResultContext;
 export default Landing;

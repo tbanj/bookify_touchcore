@@ -5,3 +5,58 @@
     line-height: 1.3333333;
     border-radius: 6px;
 }
+
+.addHeight {
+    height: 55px;
+    
+}
+
+.theme-search-area-section-inner {
+    margin-bottom: 5%;
+    margin-right: 3%;
+}
+
+.addMarginRight {
+    margin-right: 3%
+}
+
+.theme-search-area-section-icon {
+    left: 10;
+}
+
+.iconColor {
+    background-color: white;
+    margin-right: 5%;
+    margin-top: 9%
+}
+
+
+
+.innerDate {
+    margin-left: 5%;
+}
+
+.marginleftDate {
+    margin-left: 2%;
+}
+
+.marginCabin {
+    margin-left: 2%;
+    margin-top: 2%
+}
+
+.submitButton {
+    margin-top: 26.5px;
+    display: block;
+    height: 57px;
+    line-height: 57px;
+    text-align: center;
+    padding: 0;
+    width: 100%;
+    color: #fff;
+    background: #ff6c2d;
+    border: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    position: relative;
+}
