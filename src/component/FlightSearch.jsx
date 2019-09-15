@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { ResultContext } from './shared/result-context';
 import { findFlights } from "../service/flightService.js";
-import http from '../service/httpService';
 import Storage from '../service/Storage.js';
-import env from "../env.js";
 
 const dataItem = new Storage();
 class FlightSearch extends Component {
@@ -31,7 +29,8 @@ class FlightSearch extends Component {
       }, (error) => {
         if (error.response && error.response.status === 422) {
           this.setState({ errorData: 'check your network', serverData: [], isFetching: false });
-          console.log(error.response.data)
+          toast.error(this.state.errorData);
+          console.log(error.response.data);
         }
       })
 
@@ -100,12 +99,9 @@ class FlightSearch extends Component {
 
   render() {
     const { serverData, isFetching, errorData } = this.state;
-    const message = this.context;
+    // const message = this.context;
     return (
       <React.Fragment>
-
-
-
         <div className="theme-hero-area front">
           <div className="theme-hero-area-bg-wrap">
             <div className="theme-hero-area-bg theme-hero-area-bg-blur" style={{ backgroundImage: 'url(./test_assets/img/1500x800.png)' }}></div>

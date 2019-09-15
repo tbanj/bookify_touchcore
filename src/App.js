@@ -22,9 +22,7 @@ class App extends Component {
   }
 
   onUserInput = newVal => {
-    console.log(newVal)
     this.setState({ resultName: newVal });
-    console.log(this.state.resultName);
   };
   render() {
     return (

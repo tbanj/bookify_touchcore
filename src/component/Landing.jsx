@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { toast } from 'react-toastify';
-import http from '../service/httpService';
 import env from "../env.js";
 import { ResultContext } from './shared/result-context';
 import { requestToken } from "../service/flightService.js";
@@ -168,7 +167,7 @@ class Landing extends Component {
 
     const filterByFields = ['code', 'name'];
     const departFilterByFields = ['code', 'name'];
-    let messaged = this.context;
+    // let messaged = this.context;
     return (
       <React.Fragment>
 
