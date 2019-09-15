@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-
 import { Link } from "react-router-dom";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { toast } from 'react-toastify';
 import http from '../service/httpService';
 import env from "../env.js";
 import { ResultContext } from './shared/result-context';
-import { axiosTest, requestToken } from "../service/flightService.js";
+import { requestToken } from "../service/flightService.js";
 
 import Storage from '../service/Storage.js';
 
@@ -35,16 +34,6 @@ class Landing extends Component {
   }
 
   getDetail() {
-    axiosTest().then(data => {
-      if (data) {
-        this.setState({ data })
-      }
-    }, (error) => {
-      if (error.response && error.response.status === 404)
-        toast.error('error encounter when fetching sample airport list');
-
-    })
-
     requestToken().then(data => {
       if (data) {
         this.setState({ api_token: data.body.data.api_token })
@@ -70,13 +59,11 @@ class Landing extends Component {
     let stop = new Date(e.target.value);
     let start = new Date(this.state.flight_departure_date);
     let diff = Math.floor((Date.UTC(stop.getFullYear(), stop.getMonth(), stop.getDate()) - Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) / (1000 * 60 * 60 * 24));
-
     this.setState({ schedule_duration: diff, flight_arrival_date: e.target.value });
     diff = 0;
   }
 
   handleOnChange = (e) => {
-
     this.setState({ [e.target.name]: e.target.value }, () => { });
   }
 
@@ -120,7 +107,7 @@ class Landing extends Component {
               "departure_city": this.state.departSelected[0].code,
               "destination_city": this.state.selected[0].code,
               "departure_date": this.coverDate(this.state.flight_departure_date),
-              "return_date": ""
+              "return_date": this.coverDate(this.state.flight_arrival_date)
             }
           ],
           "search_param": {
@@ -139,7 +126,7 @@ class Landing extends Component {
       // if (detail['referral_code'].trim().length < 1) delete detail.referral_code;
       // const res = await http.post(`${env.airports_type_ahead_url}/v1/flight/search-flight`, detail);
 
-      // use below to send the whole data to the second page
+      // use below to send data to the second page
       let messaged = this.context;
       messaged.onUserInput(storeData);
       dataItem.storeItem(storeData);
@@ -151,32 +138,11 @@ class Landing extends Component {
     }
 
 
-    // fetch(`${env.airports_type_ahead_url}/v1/flight/search-flight`,detail)
-    // .then(resp => resp.json())
-    // .then(({ body }) => {
-    //   // console.log(body.data);
-    //   console.log(body.data);
-    //   const options = body.data;
-    //   return { options };
-    // })
-    // .then(({ options }) => {
-    //   this.setState({
-    //     isLoading: false,
-    //     departOptions: options
-    //   });
-    // }
-    //   , (error) => {
-    //     toast.error("please check your network ");
-    //   }
-    // );
-
   }
 
 
   componentDidMount() {
     this.getDetail();
-
-
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -563,7 +529,7 @@ class Landing extends Component {
                                     <div className="">
                                       <i className=" iconColor  theme-search-area-section-icon lin lin-calendar"></i>
 
-                                      <input type="date" min={minDate} value={this.state.flight_departure_date}
+                                      <input type="date" min={minDate} value={flight_departure_date}
                                         onChange={this.handleStartTime} name="depart_date"
                                         className=" innerDate addHeight form-control " ></input>
                                     </div>
@@ -576,8 +542,8 @@ class Landing extends Component {
                                     <div className="">
                                       <i className=" iconColor theme-search-area-section-icon lin lin-calendar"></i>
 
-                                      <input className="form-control addHeight innerDate" value={this.state.flight_arrival_date} onChange={this.handleStopTime} type="date"
-                                        min={this.state.flight_departure_date} />
+                                      <input className="form-control addHeight innerDate" value={flight_arrival_date} onChange={this.handleStopTime} type="date"
+                                        min={flight_departure_date} />
                                     </div>
                                   </div>
                                 </div>

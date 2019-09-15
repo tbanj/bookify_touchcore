@@ -9,36 +9,24 @@ import env from "../env.js";
 
 const dataItem = new Storage();
 class FlightSearch extends Component {
-  // state = {}
   constructor() {
     super();
     this.state = {
       serverData: [], isFetching: true, errorData: 'loading'
     }
-    console.log("Constructor: ", this.context);
     this.getlocalTime = this.getlocalTime.bind(this);
   }
-  // static contextType = ResultContext
 
   async getFlights() {
     // let detailReceived = this.context;
     // console.log(detailReceived.val);
     const detailReceived = dataItem.getItemsFromStorage();
-    console.log(detailReceived[0]);
     findFlights(detailReceived[0])
       .then(data => {
-        console.log(data.data.body.data.itineraries, this.state.isFetching)
         if (data) {
-          console.log(
-            { message: 'Request received!', data, });
           const sendData = data.data.body.data.itineraries;
-          console.log(sendData);
-
           const awaitData = this.dataToPopulate(sendData);
-          setTimeout(() => {
-            this.setState({ serverData: awaitData, isFetching: false })
-          }, 5000);
-          console.log(this.state.serverData)
+          this.setState({ serverData: awaitData, isFetching: false })
         }
       }, (error) => {
         if (error.response && error.response.status === 422) {
@@ -47,9 +35,6 @@ class FlightSearch extends Component {
         }
       })
 
-    // const res = await http.post(`${env.airports_type_ahead_url}/v1/flight/search-flight`, detailReceived.val[0]);
-    // console.log(res);
-    // console.log(res.data.body.data.itineraries);
   }
 
   getlocalTime = (date, time) => {
@@ -60,7 +45,6 @@ class FlightSearch extends Component {
       hour12: true
     };
     let timeString = dateTime.toLocaleString('en-US', options);
-    console.log(timeString);
     return timeString
   }
 
@@ -70,10 +54,9 @@ class FlightSearch extends Component {
     let segment = origin.segments;
 
     for (let m = 0; m < segment.length; m++) {
-      console.log(segment[m]);
       let dataSegment = {
-        // departure_city: segment[m].departure.airport.city_name,
-        // departure_date: segment[m].departure.date,
+        departure_city: segment[m].departure.airport.city_name,
+        departure_date: segment[m].departure.date,
         departure_time: segment[m].departure.time,
         flight_duartion: segment[m].flight_duration,
         departure_code: segment[m].departure.airport.code,
@@ -88,7 +71,6 @@ class FlightSearch extends Component {
       }
 
       publishData.push(dataSegment);
-      console.log(publishData)
 
     }
 
@@ -96,8 +78,6 @@ class FlightSearch extends Component {
   }
 
   dataToPopulate = (data) => {
-    console.log(data[0].pricing)
-    let newData = {};
     let updatedDatedm = [];
     for (let u = 0; u < data.length; u++) {
 
@@ -119,10 +99,8 @@ class FlightSearch extends Component {
   }
 
   render() {
-    console.log(this.props);
     const { serverData, isFetching, errorData } = this.state;
     const message = this.context;
-    console.log("aa: ", serverData)
     return (
       <React.Fragment>
 
@@ -751,8 +729,8 @@ class FlightSearch extends Component {
                                                 {data.general_array[0].departure_airport_time.slice(0, -2)}
                                                 <span>{data.general_array[0].departure_airport_time.slice(-2)}</span>
                                               </p>
-                                              <p className="theme-search-results-item-flight-section-meta-city">
-                                                {data.city}</p>
+
+                                              <p className="theme-search-results-item-flight-section-meta-city">{data.general_array[0].departure_city}</p>
                                               <p className="theme-search-results-item-flight-section-meta-date">{data.general_array[0].departure_date}</p>
                                             </div>
                                           </div>
