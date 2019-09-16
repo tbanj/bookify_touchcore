@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import logo from './logo.svg';
 import { ToastContainer } from "react-toastify";
 import { Route, Switch } from "react-router-dom";
 import { ResultContext } from './component/shared/result-context.js';

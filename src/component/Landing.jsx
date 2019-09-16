@@ -38,9 +38,11 @@ class Landing extends Component {
         this.setState({ api_token: data.body.data.api_token })
       }
     }, (error) => {
-      if (error.response && error.response.status === 422)
-        toast.error('data not found');
-
+      if (error.response && error.response.status === 422) {
+        toast.error(error.response.data.body.message);
+        // console.error(error.response.body.message);
+      }
+      
     })
 
   }
@@ -450,7 +452,10 @@ class Landing extends Component {
                                               });
                                             }
                                               , (error) => {
-                                                toast.error("please check your network ");
+                                                if (error.response && error.response.status === 422) {
+                                                  toast.error(error.response.data.body.message);
+                                                  // console.error(error.response.body.message);
+                                                }
                                               }
                                             );
                                         }}
@@ -504,7 +509,10 @@ class Landing extends Component {
                                               });
                                             },
                                               (error) => {
-                                                toast.error("please check your network ");
+                                                if (error.response && error.response.status === 422) {
+                                                  toast.error(error.response.data.body.message);
+                                                  // console.error(error.response.body.message);
+                                                }
                                               });
                                         }}
                                         options={this.state.options}

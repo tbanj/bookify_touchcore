@@ -137,6 +137,54 @@
                 "active_status": "1",
                 "created_at": "2019-03-04 14:00:55",
                 "updated_at": "2019-09-12 11:36:07"
+            },
+            {
+                "id": 3762,
+                "code": "DXB",
+                "name": "Dubai-Dubai Intl, United Arab Emirates",
+                "country_code": "",
+                "city_code": "",
+                "popularity": "222",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:33",
+                "updated_at": "2019-09-15 22:10:46"
+            },
+            {
+                "id": 9264,
+                "code": "DJH",
+                "name": "Jebel Ali Spb",
+                "country_code": "AE",
+                "city_code": "DXB",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:37",
+                "updated_at": "2019-03-04 14:00:37"
+            },
+            {
+                "id": 409,
+                "code": "ZXZ",
+                "name": "Jumeirah Beach Bus St",
+                "country_code": "AE",
+                "city_code": "DXB",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 13:59:09",
+                "updated_at": "2019-03-04 13:59:09"
+            },
+            {
+                "id": 9717,
+                "code": "ZJF",
+                "name": "Jebel Ali Free Zone",
+                "country_code": "AE",
+                "city_code": "DXB",
+                "popularity": "0",
+                "local_airport": "0",
+                "active_status": "1",
+                "created_at": "2019-03-04 14:00:44",
+                "updated_at": "2019-03-04 14:00:44"
             }
         ]
     }

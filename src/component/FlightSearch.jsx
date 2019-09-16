@@ -28,9 +28,9 @@ class FlightSearch extends Component {
         }
       }, (error) => {
         if (error.response && error.response.status === 422) {
-          this.setState({ errorData: 'check your network', serverData: [], isFetching: false });
+          this.setState({ errorData: 'no data found currently, try again later', serverData: [], isFetching: false });
           toast.error(this.state.errorData);
-          console.log(error.response.data);
+          console.error(error.response);
         }
       })
 
