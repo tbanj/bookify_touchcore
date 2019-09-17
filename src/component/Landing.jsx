@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import _ from "lodash";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { toast } from 'react-toastify';
+import formData from './shared/form_data.js'
 import env from "../env.js";
 import { ResultContext } from './shared/result-context';
 import { requestToken, getAirlineCode } from "../service/flightService.js";
@@ -13,11 +14,6 @@ import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 import './landing.css';
 
 const dataItem = new Storage();
-
-let cabin_class = [{ id: 0, val: 'First' }, { id: 1, val: 'Economy' }, { id: 2, val: 'Business' }, { id: 3, val: 'All' }];
-let adult_number = [{ id: 0, val: 0 }, { id: 1, val: 1 }, { id: 2, val: 2 }, { id: 3, val: 2 }, { id: 4, val: 4 }, { id: 5, val: 5 }, { id: 6, val: 6 }
-  , { id: 7, val: 7 }, { id: 8, val: 8 }, { id: 9, val: 9 }];
-
 let minDate = new Date();
 
 minDate = `${minDate.getFullYear()}-0${minDate.getMonth() + 1}-${minDate.getDate()}`;
@@ -27,8 +23,12 @@ class Landing extends Component {
     this.state = {
       data: {}, schedule_duration: 0, isLoading: false, flight_departure_date: minDate, flight_arrival_date: minDate,
       departFilterBy: 'callback', departMultiple: false, departOptions: [], departIsloading: false,
-      no_of_children: "", no_of_infants: "", no_of_adults: "", cabin_type: "", api_token: '', populateImage: []
+      no_of_children: "No of Children (2 - 12 yo)", no_of_infant: "No of Infants (0 - 2 yo)",
+      departSelected: [], selected: [],
+      no_of_adults: "No of Adults (> 12 yo)", cabin_type: 'Select Cabin Class', api_token: '', populateImage: []
     }
+
+
     this.getDetail = this.getDetail.bind(this);
     this.handleDoesFormHaveErrors = this.handleDoesFormHaveErrors.bind(this);
     this.handleSubmitForm = this.handleSubmitForm.bind(this);
@@ -54,7 +54,7 @@ class Landing extends Component {
 
 
   getAirportCode() {
-    let storeCode= getAirlineCode();
+    let storeCode = getAirlineCode();
     let pageNumber;
     if (!JSON.parse(localStorage.getItem("airport_page"))) {
       pageNumber = 1;
@@ -120,21 +120,21 @@ class Landing extends Component {
   }
 
   handleDoesFormHaveErrors() {
-    const required = ['no_of_children', 'no_of_infants', 'no_of_adults', 'cabin_type'];
+
+    const required = ['no_of_children', 'no_of_infant', 'no_of_adults', 'cabin_type'];
     let emptyFields = 0;
     required.forEach(field => {
-      if (this.state[field] === '' || this.state.no_of_adults === 'No of Adults (> 12 yo)') {
+      if (this.state[field] === 'Select Cabin Class') { ++emptyFields; }
+      if (this.state[field] === 'No of Adults (> 12 yo)') { ++emptyFields; }
+      if (this.state[field] === 'No of Infants (0 - 2 yo)') { ++emptyFields; }
+      if (this.state[field] === 'No of Children (2 - 12 yo)') { ++emptyFields; }
 
-        ; ++emptyFields;
+      if (this.state.departSelected.length < 1 || this.state.selected.length < 1) {
+        ++emptyFields;
       }
 
-      if (!this.state.selected || !this.state.departSelected
-        || this.state.no_of_children === 'No of Children (2 - 12 yo)') {
-        ; ++emptyFields;
-      }
 
     });
-
     if (emptyFields > 0) { return true; }
     else {
       return false;
@@ -144,7 +144,6 @@ class Landing extends Component {
   coverDate(date) {
     return new Date(date).toLocaleDateString();
   }
-
 
 
   handleSubmitForm() {
@@ -159,14 +158,14 @@ class Landing extends Component {
               "departure_city": this.state.departSelected[0].code,
               "destination_city": this.state.selected[0].code,
               "departure_date": this.coverDate(this.state.flight_departure_date),
-              "return_date": this.coverDate(this.state.flight_arrival_date)
+              "return_date": this.state.flight_arrival_date !== this.state.flight_departure_date ? this.coverDate(this.state.flight_arrival_date) : ''
             }
           ],
           "search_param": {
 
             "no_of_adult": this.state.no_of_adults,
             "no_of_child": this.state.no_of_children,
-            "no_of_infant": this.state.no_of_infants,
+            "no_of_infant": this.state.no_of_infant,
             "preferred_airline_code": "",
             "calendar": false,
             "cabin": this.state.cabin_type
@@ -179,8 +178,8 @@ class Landing extends Component {
       // const res = await http.post(`${env.airports_type_ahead_url}/v1/flight/search-flight`, detail);
 
       // use below to send data to the second page
-      let messaged = this.context;
-      messaged.onUserInput(storeData);
+      // let messaged = this.context;
+      // messaged.onUserInput(storeData);
       dataItem.storeItem(storeData);
       this.props.history.push('/flight-search');
 
@@ -204,11 +203,13 @@ class Landing extends Component {
     injectedProps.clearButton = true;
 
     const { filterBy, departFilterBy, flight_departure_date, flight_arrival_date,
-      isLoading } = this.state;
+      isLoading, no_of_adults, no_of_infant, no_of_children, cabin_type } = this.state;
+
     const filterByCallback = (option, props) => (
       option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
       option.name.toLowerCase().indexOf(props.text.toLowerCase()) !== -1
     );
+
     const departFilterByCallback = (option, props) => (
       option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
       option.name.toLowerCase().indexOf(props.text.toLowerCase()) !== -1
@@ -510,7 +511,7 @@ class Landing extends Component {
                                         }}
                                         options={this.state.options}
                                         onChange={(selected) => {
-                                          toast(selected[0].name);
+
                                           this.setState({ departSelected: selected });
                                         }}
 
@@ -602,8 +603,7 @@ class Landing extends Component {
 
                                 <div className="col-md-3 form-group " style={{ marginTop: '2%' }}>
                                   <select className="form-control addHeight" onChange={this.handleOnChange} name="cabin_type">
-                                    <option value="default" >Select Cabin Class</option>
-                                    {cabin_class.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+                                    {formData.cabin_class.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
 
                                   </select>
                                 </div>
@@ -612,23 +612,20 @@ class Landing extends Component {
                               <div className="container-fluid form-group" style={{ marginTop: '4%' }} data-gutter="none">
                                 <div className="col-md-3  form-group">
                                   <select className="form-control addHeight " onChange={this.handleOnChange} name="no_of_adults">
-                                    <option value="default" >No of Adults (> 12 yo)</option>
-                                    {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+                                    {formData.select_adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
 
                                   </select>
                                 </div>
                                 <div className="col-md-3  form-group">
                                   <select className="form-control addHeight " onChange={this.handleOnChange} name="no_of_children">
-                                    <option value="default" >No of Children (2 - 12 yo)</option>
-                                    {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+                                    {formData.select_children_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
 
                                   </select>
                                 </div>
 
                                 <div className="col-md-3 form-group">
-                                  <select className="form-control addHeight" onChange={this.handleOnChange} name="no_of_infants">
-                                    <option value="default" >No of Infants (0 - 2 yo)</option>
-                                    {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
+                                  <select className="form-control addHeight" onChange={this.handleOnChange} name="no_of_infant">
+                                    {formData.select_infant_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
 
                                   </select>
                                 </div>
@@ -817,15 +814,13 @@ class Landing extends Component {
         </div>
         <div className="container-fluid" data-gutter="0">
           {this.state.populateImage.map((data, key) => (
-            <React.Fragment>
-              <div key={key} className="col-md-3 ">
-                <div className="banner banner-">
-                  <img className="banner-img" src={data % 2 === 0 ? './test_assets/img/600x413.png' :
-                    data.code} alt="visual Alternative text" title="Image Title" />
-                  <a className="banner-link" href={`${data.url}`}></a>
-                </div>
+            <div key={key} className="col-md-3 ">
+              <div className="banner banner-">
+                <img className="banner-img" src={data % 2 === 0 ? './test_assets/img/600x413.png' :
+                  data.code} alt="visual Alternative text" title="Image Title" />
+                <a className="banner-link" href={`${data.url}`}></a>
               </div>
-            </React.Fragment>
+            </div>
           ))}
         </div>
         <div className="theme-hero-area">

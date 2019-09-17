@@ -19,6 +19,7 @@ class FlightSearch extends Component {
     // let detailReceived = this.context;
     // console.log(detailReceived.val);
     const detailReceived = dataItem.getItemsFromStorage();
+    console.log(detailReceived[0].body.origin_destinations[0].return_date)
     findFlights(detailReceived[0])
       .then(data => {
         if (data) {
@@ -30,7 +31,7 @@ class FlightSearch extends Component {
         if (error.response && error.response.status === 422) {
           this.setState({ errorData: 'no data found currently, try again later', serverData: [], isFetching: false });
           toast.error(this.state.errorData);
-          console.error(this.state.errorData);
+          // console.error(this.state.errorData);
         }
       })
 
@@ -904,7 +905,7 @@ class FlightSearch extends Component {
                         </div>
                       </div>
 
-                    )) : <div>{`${this.state.errorData} `}<span><i className={this.state.isFetching === true ?
+                    )) : <div><h3 className="text-danger">{`${this.state.errorData} `}</h3><span><i className={this.state.isFetching === true ?
                       `spinner-border text-primary` : ""}></i></span></div>}
 
                 </div>
