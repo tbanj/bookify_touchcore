@@ -19,7 +19,6 @@ class FlightSearch extends Component {
     // let detailReceived = this.context;
     // console.log(detailReceived.val);
     const detailReceived = dataItem.getItemsFromStorage();
-    console.log(detailReceived[0].body.origin_destinations[0].return_date)
     findFlights(detailReceived[0])
       .then(data => {
         if (data) {
