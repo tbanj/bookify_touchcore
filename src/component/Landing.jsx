@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
+import _ from "lodash";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { toast } from 'react-toastify';
 import env from "../env.js";
 import { ResultContext } from './shared/result-context';
-import { requestToken } from "../service/flightService.js";
+import { requestToken, getAirlineCode } from "../service/flightService.js";
 
 import Storage from '../service/Storage.js';
 
@@ -18,6 +19,7 @@ let adult_number = [{ id: 0, val: 0 }, { id: 1, val: 1 }, { id: 2, val: 2 }, { i
   , { id: 7, val: 7 }, { id: 8, val: 8 }, { id: 9, val: 9 }];
 
 let minDate = new Date();
+
 minDate = `${minDate.getFullYear()}-0${minDate.getMonth() + 1}-${minDate.getDate()}`;
 class Landing extends Component {
   constructor() {
@@ -25,12 +27,15 @@ class Landing extends Component {
     this.state = {
       data: {}, schedule_duration: 0, isLoading: false, flight_departure_date: minDate, flight_arrival_date: minDate,
       departFilterBy: 'callback', departMultiple: false, departOptions: [], departIsloading: false,
-      no_of_children: "", no_of_infants: "", no_of_adults: "", cabin_type: "", api_token: ''
+      no_of_children: "", no_of_infants: "", no_of_adults: "", cabin_type: "", api_token: '', populateImage: []
     }
     this.getDetail = this.getDetail.bind(this);
     this.handleDoesFormHaveErrors = this.handleDoesFormHaveErrors.bind(this);
     this.handleSubmitForm = this.handleSubmitForm.bind(this);
+    this.getAirportCode = this.getAirportCode.bind(this);
   }
+
+
 
   getDetail() {
     requestToken().then(data => {
@@ -40,12 +45,58 @@ class Landing extends Component {
     }, (error) => {
       if (error.response && error.response.status === 422) {
         toast.error(error.response.data.body.message);
-        // console.error(error.response.body.message);
       }
-      
-    })
+
+    });
 
   }
+
+
+
+  getAirportCode() {
+    let storeCode= getAirlineCode();
+    let pageNumber;
+    if (!JSON.parse(localStorage.getItem("airport_page"))) {
+      pageNumber = 1;
+    } else { pageNumber = JSON.parse(localStorage.getItem("airport_page")) }
+
+    const pageCount = Math.ceil(storeCode.length / 4);
+    setInterval(function () {
+      if (pageNumber === pageCount) {
+        pageNumber = 0;
+      }
+      pageNumber++;
+    }, 1000 * 60 * 60 * 1);
+    localStorage.setItem('airport_page', pageNumber)
+    let airportCode = this.paginate(storeCode, pageNumber, 4);
+    this.insertAirportUrl(airportCode);
+  }
+
+
+
+  paginate(items, pageNumber, pageSize) {
+    const startIndex = (pageNumber - 1) * pageSize;
+    return _(items)
+      .slice(startIndex)
+      .take(pageSize)
+      .value();
+  }
+
+
+  insertAirportUrl(data) {
+    let populateImage = [];
+    for (let i = 0; i < data.length; i++) {
+      data[i]['code'] = `https://daisycon.io/images/airline/?width=600&height=413&color=ffffff&iata=${data[i]['code'].toLowerCase()}`
+      populateImage.push(data[i]);
+
+    }
+    this.setState({ populateImage });
+  }
+
+
+
+
+
 
   handleStartTime = (e) => {
     e.preventDefault();
@@ -137,13 +188,11 @@ class Landing extends Component {
       if (error.response && error.response.status === 422)
         toast.error('error encounter when fetching sample airport list');
     }
-
-
   }
-
 
   componentDidMount() {
     this.getDetail();
+    this.getAirportCode();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -176,7 +225,7 @@ class Landing extends Component {
 
         <div className="theme-hero-area theme-hero-area-primary">
           <div className="theme-hero-area-bg-wrap">
-            <div className="theme-hero-area-bg ws-action" style={{ backgroundImage: 'url(.//test_assets/img/1500x800.png)' }} data-parallax="true"></div>
+            <div className="theme-hero-area-bg ws-action" style={{ backgroundImage: 'url(/test_assets/img/logo/background_image.jpg)' }} data-parallax="true"></div>
             <div className="theme-hero-area-mask theme-hero-area-mask-half"></div>
             <div className="theme-hero-area-inner-shadow theme-hero-area-inner-shadow-light"></div>
           </div>
@@ -200,13 +249,13 @@ class Landing extends Component {
                   </div>
                   <div className="tabbable">
                     <ul className="nav nav-tabs nav-line nav-white nav-lg nav-mob-inline" role="tablist">
-                      <li className="active" role="presentation">
+                      <li role="presentation">
                         <Link aria-controls="SearchAreaTabs-1" role="tab" data-toggle="tab" to={"#SearchAreaTabs-1"}>Hotels</Link>
                       </li>
                       <li role="presentation">
                         <Link aria-controls="SearchAreaTabs-2" role="tab" data-toggle="tab" to={"#SearchAreaTabs-2"}>Homes</Link>
                       </li>
-                      <li role="presentation">
+                      <li className="active" role="presentation">
                         <Link aria-controls="SearchAreaTabs-3a" role="tab" data-toggle="tab" to={"#SearchAreaTabs-3a"}>Flights</Link>
                       </li>
                       <li role="presentation">
@@ -219,7 +268,7 @@ class Landing extends Component {
 
 
                     <div className="tab-content _pt-20">
-                      <div className="tab-pane active" id="SearchAreaTabs-1" role={"tabpanel"}>
+                      <div className="tab-pane " id="SearchAreaTabs-1" role={"tabpanel"}>
                         <div className="theme-search-area theme-search-area-stacked">
                           <div className="theme-search-area-form">
                             <div className="row" data-gutter="none">
@@ -411,11 +460,11 @@ class Landing extends Component {
                           </div>
                         </div>
                       </div>
-                      <div className="tab-pane" id="SearchAreaTabs-3a" role={"tabpanel"}>
+                      <div className="tab-pane active" id="SearchAreaTabs-3a" role={"tabpanel"}>
                         <div className="">
                           <div className="">
                             <form className="row " >
-                              <div className="row" >
+                              <div className="container-fluid" >
                                 <div className="col-md-6 ">
                                   <div className="theme-search-area-section first theme-search-area-section-curved theme-search-area-section-bg-white theme-search-area-section-no-border theme-search-area-section-mr">
                                     <div className="theme-search-area-section-inner">
@@ -527,36 +576,31 @@ class Landing extends Component {
                                   </div>
                                 </div>
                               </div>
-                              <div className="row form-group" data-gutter="none">
+                              <div className="container-fluid " data-gutter="none">
 
-                                <div className="  col-md-3 ">
+                                <div className="  col-md-3 form-group">
+                                  <label htmlFor="depart_date" className="text-white">Departure Date</label>
+                                  <div className="">
+                                    {/* <i className=" iconColor  theme-search-area-section-icon lin lin-calendar"></i> */}
 
-                                  <div className="form-group">
-                                    <label htmlFor="depart_date" className="text-white">Departure City</label>
-                                    <div className="">
-                                      <i className=" iconColor  theme-search-area-section-icon lin lin-calendar"></i>
-
-                                      <input type="date" min={minDate} value={flight_departure_date}
-                                        onChange={this.handleStartTime} name="depart_date"
-                                        className=" innerDate addHeight form-control " ></input>
-                                    </div>
+                                    <input type="date" min={minDate} value={flight_departure_date}
+                                      onChange={this.handleStartTime} name="depart_date"
+                                      className=" addHeight form-control fa fa-calendar-check-o" ></input>
                                   </div>
                                 </div>
 
-                                <div className=" col-md-3 marginleftDate">
-                                  <div className="form-group">
-                                    <label htmlFor="arrival_date" className="text-white">Arrival City</label>
-                                    <div className="">
-                                      <i className=" iconColor theme-search-area-section-icon lin lin-calendar"></i>
+                                <div className=" col-md-3 form-group">
+                                  <label htmlFor="arrival_date" className="text-white">Arrival Date</label>
+                                  <div className="">
+                                    {/* <i className=" iconColor theme-search-area-section-icon lin lin-calendar"></i> */}
 
-                                      <input className="form-control addHeight innerDate" value={flight_arrival_date} onChange={this.handleStopTime} type="date"
-                                        min={flight_departure_date} />
-                                    </div>
+                                    <input className="form-control addHeight fa fa-calendar-check-o" value={flight_arrival_date} onChange={this.handleStopTime} type="date"
+                                      min={flight_departure_date} />
                                   </div>
                                 </div>
 
 
-                                <div className="col-md-3 form-group marginCabin">
+                                <div className="col-md-3 form-group " style={{ marginTop: '2%' }}>
                                   <select className="form-control addHeight" onChange={this.handleOnChange} name="cabin_type">
                                     <option value="default" >Select Cabin Class</option>
                                     {cabin_class.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
@@ -565,15 +609,15 @@ class Landing extends Component {
                                 </div>
                               </div>
 
-                              <div className="row form-group" data-gutter="none">
-                                <div className="col-md-3 addMarginRight form-group">
+                              <div className="container-fluid form-group" style={{ marginTop: '4%' }} data-gutter="none">
+                                <div className="col-md-3  form-group">
                                   <select className="form-control addHeight " onChange={this.handleOnChange} name="no_of_adults">
                                     <option value="default" >No of Adults (> 12 yo)</option>
                                     {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
 
                                   </select>
                                 </div>
-                                <div className="col-md-3 addMarginRight form-group">
+                                <div className="col-md-3  form-group">
                                   <select className="form-control addHeight " onChange={this.handleOnChange} name="no_of_children">
                                     <option value="default" >No of Children (2 - 12 yo)</option>
                                     {adult_number.map((data, key) => (<option value={data.val} key={key} >{data.val}</option>))}
@@ -589,8 +633,8 @@ class Landing extends Component {
                                   </select>
                                 </div>
                               </div>
-                              <div className="row form-group">
-                                <div className="col-md-1 ">
+                              <div className="container-fluid form-group">
+                                <div className="col-md-2 ">
                                   <button type="button" disabled={this.handleDoesFormHaveErrors()} onClick={this.handleSubmitForm} className="submitButton">Search</button>
                                 </div>
                               </div>
@@ -771,31 +815,18 @@ class Landing extends Component {
             </div>
           </div>
         </div>
-        <div className="row row-col-border-white" data-gutter="0">
-          <div className="col-md-3 ">
-            <div className="banner banner-">
-              <img className="banner-img" src=".//test_assets/img/600x413.png" alt="visual Alternative text" title="Image Title" />
-              <Link className="banner-link" to={""}></Link>
-            </div>
-          </div>
-          <div className="col-md-3 ">
-            <div className="banner banner-">
-              <img className="banner-img" src=".//test_assets/img/600x413.png" alt="visual Alternative text" title="Image Title" />
-              <Link className="banner-link" to={""}></Link>
-            </div>
-          </div>
-          <div className="col-md-3 ">
-            <div className="banner banner-">
-              <img className="banner-img" src=".//test_assets/img/600x413.png" alt="visual Alternative text" title="Image Title" />
-              <Link className="banner-link" to={""}></Link>
-            </div>
-          </div>
-          <div className="col-md-3 ">
-            <div className="banner banner-">
-              <img className="banner-img" src=".//test_assets/img/600x413.png" alt="visual Alternative text" title="Image Title" />
-              <Link className="banner-link" to={""}></Link>
-            </div>
-          </div>
+        <div className="container-fluid" data-gutter="0">
+          {this.state.populateImage.map((data, key) => (
+            <React.Fragment>
+              <div key={key} className="col-md-3 ">
+                <div className="banner banner-">
+                  <img className="banner-img" src={data % 2 === 0 ? './test_assets/img/600x413.png' :
+                    data.code} alt="visual Alternative text" title="Image Title" />
+                  <a className="banner-link" href={`${data.url}`}></a>
+                </div>
+              </div>
+            </React.Fragment>
+          ))}
         </div>
         <div className="theme-hero-area">
           <div className="theme-hero-area-bg-wrap">
@@ -1034,7 +1065,7 @@ class Landing extends Component {
               <div className="col-md-3">
                 <div className="theme-footer-section theme-footer-">
                   <Link className="theme-footer-brand _mb-mob-30" to={""}>
-                    <img src="/test_assets/img/logo-black.png" alt="visual Alternative text" title="Image Title" />
+                    <img src="/test_assets/img/logo/logo7black.png" alt="visual Alternative text" title="Image Title" />
                   </Link>
                   <div className="theme-footer-brand-text">
                     <p>Eget est blandit pulvinar morbi ligula vel dignissim inceptos dignissim eleifend tortor tempus dictumst tincidunt</p>
@@ -1152,8 +1183,8 @@ class Landing extends Component {
           <div className="container">
             <div className="row">
               <div className="col-md-6">
-                <p className="theme-copyright-text">Copyright &copy; 2018
-                      <Link to={""}>Bookify</Link>. All rights reserved.
+                <p className="theme-copyright-text">Copyright &copy; 2019
+                      <Link to={""}>mybooky</Link>. All rights reserved.
                     </p>
               </div>
               <div className="col-md-6">

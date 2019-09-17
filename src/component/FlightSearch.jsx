@@ -30,7 +30,7 @@ class FlightSearch extends Component {
         if (error.response && error.response.status === 422) {
           this.setState({ errorData: 'no data found currently, try again later', serverData: [], isFetching: false });
           toast.error(this.state.errorData);
-          console.error(error.response);
+          console.error(this.state.errorData);
         }
       })
 
@@ -107,7 +107,9 @@ class FlightSearch extends Component {
             <div className="theme-hero-area-bg theme-hero-area-bg-blur" style={{ backgroundImage: 'url(./test_assets/img/1500x800.png)' }}></div>
             <div className="theme-hero-area-mask theme-hero-area-mask-half"></div>
           </div>
-          <div className="theme-hero-area-body">
+          <div className="theme-hero-area-body" lazy-img-error="https://wakanow-images.azureedge.net/Images/New-Wireframebanner1.jpg"
+            style={{ backgroundImage: 'url(/test_assets/img/logo/cover_image2.jpg)' }}
+          >
             <div className="container">
               <div className="_pb-50 _pt-100 _pv-mob-50">
                 <div className="theme-search-area _mob-h theme-search-area-white">
@@ -932,7 +934,7 @@ class FlightSearch extends Component {
 
                 <div className="theme-footer-section theme-footer-">
                   <Link className="theme-footer-brand _mb-mob-30" to={"#"}>
-                    <img src="/test_assets/img/logo-black.png" alt="Visual Alternative text" title="Image Title" />
+                    <img src="/test_assets/img/logo/logo7black.png" alt="Visual Alternative text" title="Image Title" />
                   </Link>
                   <div className="theme-footer-brand-text">
                     <p>Aenean ante inceptos velit facilisis habitasse ac pellentesque ac dictum ante mollis semper nullam curabitur</p>
@@ -1050,8 +1052,8 @@ class FlightSearch extends Component {
           <div className="container">
             <div className="row">
               <div className="col-md-6">
-                <p className="theme-copyright-text">Copyright &copy; 2018
-              <Link to={"#"}>Bookify</Link>. All rights reserved.
+                <p className="theme-copyright-text">Copyright &copy; 2019
+              <Link to={"#"}>mybooky</Link>. All rights reserved.
             </p>
               </div>
               <div className="col-md-6">
