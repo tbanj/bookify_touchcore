@@ -124,12 +124,13 @@ class Landing extends Component {
     const required = ['no_of_children', 'no_of_infant', 'no_of_adults', 'cabin_type'];
     let emptyFields = 0;
     required.forEach(field => {
-      if (this.state[field] === 'Select Cabin Class') { ++emptyFields; }
-      if (this.state[field] === 'No of Adults (> 12 yo)') { ++emptyFields; }
-      if (this.state[field] === 'No of Infants (0 - 2 yo)') { ++emptyFields; }
-      if (this.state[field] === 'No of Children (2 - 12 yo)') { ++emptyFields; }
+      if (this.state[field] === formData.cabin_class[0].val) { ++emptyFields; }
+      if (this.state[field] === formData.select_adult_number[0].val) { ++emptyFields; }
+      if (this.state[field] === formData.select_infant_number[0].val) { ++emptyFields; }
+      if (this.state[field] === formData.select_children_number[0].val) { ++emptyFields; }
 
-      if (this.state.departSelected.length < 1 || this.state.selected.length < 1) {
+      if (this.state.departSelected.length < 1 || this.state.selected.length < 1
+        || this.state.departSelected[0].code === this.state.selected[0].code) {
         ++emptyFields;
       }
 
