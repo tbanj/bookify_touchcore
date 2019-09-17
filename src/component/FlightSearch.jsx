@@ -947,10 +947,10 @@ class FlightSearch extends Component {
                 <div className="row">
                   <div className="col-md-4">
                     <div className="theme-footer-section theme-footer-">
-                      <h5 className="theme-footer-section-title">Travel Mate</h5>
+                      <h5 className="theme-footer-section-title">Mybooky Travel</h5>
                       <ul className="theme-footer-section-list">
                         <li>
-                          <Link to={"#"}>About Travel Mate</Link>
+                          <Link to={"#"}>About Mybooky Travel</Link>
                         </li>
                         <li>
                           <Link to={"#"}>Mobile App</Link>
