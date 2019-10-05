@@ -66,7 +66,12 @@ class Landing extends Component {
         pageNumber = 0;
       }
       pageNumber++;
-    }, 1000 * 60 * 60 * 1);
+      console.log('click me', pageNumber, pageCount);
+      localStorage.setItem('airport_page', pageNumber)
+      let airportCode = this.paginate(storeCode, pageNumber, 4);
+      this.insertAirportUrl(airportCode);
+    }, 3000);
+    console.log('click me', pageNumber);
     localStorage.setItem('airport_page', pageNumber)
     let airportCode = this.paginate(storeCode, pageNumber, 4);
     this.insertAirportUrl(airportCode);
@@ -193,6 +198,7 @@ class Landing extends Component {
   componentDidMount() {
     this.getDetail();
     this.getAirportCode();
+
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -204,7 +210,7 @@ class Landing extends Component {
     injectedProps.clearButton = true;
 
     const { filterBy, departFilterBy, flight_departure_date, flight_arrival_date,
-      isLoading, no_of_adults, no_of_infant, no_of_children, cabin_type } = this.state;
+      isLoading } = this.state;
 
     const filterByCallback = (option, props) => (
       option.code.toLowerCase().indexOf(props.text.toLowerCase()) !== -1 ||
@@ -819,7 +825,8 @@ class Landing extends Component {
               <div className="banner banner-">
                 <img className="banner-img" src={data % 2 === 0 ? './test_assets/img/600x413.png' :
                   data.code} alt="visual Alternative text" title="Image Title" />
-                <a className="banner-link" href={`${data.url}`}></a>
+                <a className="banner-link" href={`${data.url}`} dangerouslySetInnerHTML={{ __html: '' }} />
+
               </div>
             </div>
           ))}

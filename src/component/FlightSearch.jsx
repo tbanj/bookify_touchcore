@@ -98,7 +98,7 @@ class FlightSearch extends Component {
   }
 
   render() {
-    const { serverData, isFetching, errorData } = this.state;
+    const { serverData, isFetching } = this.state;
     // const message = this.context;
     return (
       <React.Fragment>

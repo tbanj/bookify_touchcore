@@ -7,7 +7,7 @@ import NavBar from './component/template/NavBar';
 import FlightSearch from './component/FlightSearch';
 // import NotFound from './component/NotFound';
 
-import Testting from './component/template/Testting.jsx';
+// import Testting from './component/template/Testting.jsx';
 
 import './App.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,7 +34,7 @@ class App extends Component {
 
             {/* <Route path="/not-found" component={NotFound} /> */}
             <Route path="/flight-search" render={(props) => <FlightSearch user={this.state.resultName} {...props} />} />
-            <Route path="/" component={Landing} />
+            <Route exact path="/" component={Landing} />
             {/* <Redirect to="/not-found" /> */}
           </Switch>
         </ResultContext.Provider>

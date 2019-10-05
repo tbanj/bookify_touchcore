@@ -1,3 +1,7 @@
+This is a web application developed from scratch from a design 
+critics or remarks will be appreciated.
+It is implemented with react framework
+
 This is just a demo project and for learning purpose
 To test this demo project, kindly visit https://bookifytour.netlify.com
 
